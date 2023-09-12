@@ -1,0 +1,17 @@
+syntax = "proto3";
+package job;
+
+option go_package = "github.com/tiny-job/core/proto;proto";
+
+message RunRequest {
+  map<string,string> params = 1;
+}
+
+message RunResponse {
+  map<string,string> result = 1;
+}
+
+service Job {
+  rpc Run(RunRequest) returns (RunResponse);
+}
+
