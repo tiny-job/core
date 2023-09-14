@@ -2,59 +2,46 @@ package client
 
 import (
 	"context"
-	"errors"
-	"net"
-	"strconv"
+	"os"
+	"os/exec"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
-	"github.com/spf13/cast"
-	"github.com/tiny-job/core/balancer"
-	"github.com/tiny-job/core/registry"
-	"github.com/tiny-job/core/selector"
 	"github.com/tiny-job/core/shared"
 )
 
 type Option func(*options)
 
 type options struct {
-	name string   // 任务名称
-	tags []string // 任务标签
+	logger hclog.Logger
 }
 
 var defaultOptions = options{
-	tags: []string{shared.TagConsul, shared.TagGRPC, shared.TagJob},
+	logger: hclog.New(&hclog.LoggerOptions{
+		Name:       "executor",
+		Level:      hclog.Trace,
+		Output:     os.Stderr,
+		JSONFormat: true,
+	}),
 }
 
-func Name(name string) Option {
+func Logger(logger hclog.Logger) Option {
 	return func(o *options) {
-		o.name = name
-	}
-}
-
-func Tags(tags ...string) Option {
-	return func(o *options) {
-		o.tags = tags
+		o.logger = logger
 	}
 }
 
 type Client struct {
 	opts options
-
-	register registry.Registry
-
-	logger hclog.Logger
 }
 
-func NewClient(register registry.Registry, logger hclog.Logger, opts ...Option) *Client {
+func NewClient(opts ...Option) *Client {
 	opt := defaultOptions
 	for _, o := range opts {
 		o(&opt)
 	}
 	return &Client{
-		opts:     opt,
-		register: register,
-		logger:   logger,
+		opts: opt,
 	}
 }
 
@@ -62,51 +49,12 @@ type Runner struct {
 	client *plugin.Client
 }
 
-func (c *Client) Plugin(random bool) (*Runner, error) {
-
-	services, err := c.register.GetService(c.opts.name, c.opts.tags...)
-	if err != nil {
-		return nil, err
-	}
-
-	var bcr balancer.Balancer
-	if random {
-		b, err := selector.Random(services)
-		if err != nil {
-			return nil, err
-		}
-		bcr = b
-	} else {
-		b, err := selector.RoundRobin(services)
-		if err != nil {
-			return nil, err
-		}
-		bcr = b
-	}
-
-	srv := bcr.Next()
-	if srv == nil {
-		return nil, errors.New("service not found")
-	}
-
-	addrStr := net.JoinHostPort(srv.Endpoint.Host, strconv.Itoa(srv.Endpoint.Port))
-	addr, err := net.ResolveTCPAddr("tcp", addrStr)
-	if err != nil {
-		return nil, err
-	}
-
-	pid := cast.ToInt(srv.Metadata[shared.MetaDataPid])
+func (c *Client) Plugin(cmd *exec.Cmd) (*Runner, error) {
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig: shared.Handshake,
 		Plugins:         shared.PluginMap,
-		Reattach: &plugin.ReattachConfig{
-			Protocol: plugin.ProtocolGRPC,
-			Addr:     addr,
-			Pid:      pid,
-			Test:     false,
-		},
-		// Cmd: exec.Command("./jobs/job1.exe"),
-		Logger: c.logger,
+		Cmd:             cmd,
+		Logger:          c.opts.logger,
 		AllowedProtocols: []plugin.Protocol{
 			plugin.ProtocolGRPC,
 		},
