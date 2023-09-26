@@ -22,7 +22,7 @@ func main() {
 		client.Logger(logger),
 	)
 
-	runner, err := cli.Plugin(exec.Command("./jobs/job.exe"))
+	runner, err := cli.Plugin(exec.Command("./jobs/a.exe"))
 	if err != nil {
 		log.Fatalln(err)
 	}
