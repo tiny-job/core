@@ -13,8 +13,12 @@ type Job struct {
 }
 
 func (j Job) Run(ctx context.Context, params map[string]string) (map[string]string, error) {
-	j.logger.Debug("欢迎使用程序B")
-	params["B"] = "B"
+	j.logger.Info("程序C运行开始")
+	if params == nil {
+		params = make(map[string]string)
+	}
+	params["C"] = "C"
+	j.logger.Info("程序C运行结束")
 	return params, nil
 }
 
