@@ -37,11 +37,11 @@ type JobRunPlugin struct {
 	Impl Job
 }
 
-func (p *JobRunPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
-	proto.RegisterJobServer(s, &GRPCServer{Impl: p.Impl, broker: broker})
+func (p *JobRunPlugin) GRPCServer(_ *plugin.GRPCBroker, s *grpc.Server) error {
+	proto.RegisterJobServer(s, &GRPCServer{Impl: p.Impl})
 	return nil
 }
 
-func (p *JobRunPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	return &GRPCClient{client: proto.NewJobClient(c), broker: broker}, nil
+func (p *JobRunPlugin) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	return &GRPCClient{client: proto.NewJobClient(c)}, nil
 }

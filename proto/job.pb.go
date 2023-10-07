@@ -164,8 +164,8 @@ var file_job_proto_goTypes = []interface{}{
 var file_job_proto_depIdxs = []int32{
 	2, // 0: job.RunRequest.params:type_name -> job.RunRequest.ParamsEntry
 	3, // 1: job.RunResponse.result:type_name -> job.RunResponse.ResultEntry
-	0, // 2: job.Job.Run:input_type -> job.RunRequest
-	1, // 3: job.Job.Run:output_type -> job.RunResponse
+	0, // 2: job.job.Run:input_type -> job.RunRequest
+	1, // 3: job.job.Run:output_type -> job.RunResponse
 	3, // [3:4] is the sub-list for method output_type
 	2, // [2:3] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

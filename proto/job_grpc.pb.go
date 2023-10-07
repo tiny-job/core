@@ -18,7 +18,7 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// JobClient is the client API for Job service.
+// JobClient is the client API for job service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JobClient interface {
@@ -35,14 +35,14 @@ func NewJobClient(cc grpc.ClientConnInterface) JobClient {
 
 func (c *jobClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResponse, error) {
 	out := new(RunResponse)
-	err := c.cc.Invoke(ctx, "/job.Job/Run", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/job.job/Run", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// JobServer is the server API for Job service.
+// JobServer is the server API for job service.
 // All implementations must embed UnimplementedJobServer
 // for forward compatibility
 type JobServer interface {
@@ -80,7 +80,7 @@ func _Job_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{}
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/job.Job/Run",
+		FullMethod: "/job.job/Run",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(JobServer).Run(ctx, req.(*RunRequest))
@@ -88,11 +88,11 @@ func _Job_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Job_ServiceDesc is the grpc.ServiceDesc for Job service.
+// Job_ServiceDesc is the grpc.ServiceDesc for job service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Job_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "job.Job",
+	ServiceName: "job.job",
 	HandlerType: (*JobServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

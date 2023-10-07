@@ -15,22 +15,12 @@ type options struct {
 	logger    hclog.Logger
 }
 
-var defaultOptions = options{
-	keepAlive: false,
-	logger: hclog.New(&hclog.LoggerOptions{
-		Name:       "plugin",
-		Level:      hclog.Trace,
-		Output:     os.Stderr,
-		JSONFormat: true,
-	}),
-}
-
+// KeepAlive test use
 func KeepAlive(keep bool) Option {
 	return func(o *options) {
 		o.keepAlive = keep
 	}
 }
-
 func Logger(logger hclog.Logger) Option {
 	return func(o *options) {
 		o.logger = logger
@@ -43,7 +33,15 @@ type App struct {
 }
 
 func NewApp(job shared.Job, opts ...Option) *App {
-	opt := defaultOptions
+	opt := options{
+		keepAlive: false,
+		logger: hclog.New(&hclog.LoggerOptions{
+			Name:       "plugin",
+			Level:      hclog.Trace,
+			Output:     os.Stderr,
+			JSONFormat: true,
+		}),
+	}
 	for _, o := range opts {
 		o(&opt)
 	}
@@ -54,7 +52,7 @@ func NewApp(job shared.Job, opts ...Option) *App {
 }
 
 func (a *App) Serve() {
-	// 永久运行任务
+	// 不需要父程序调用，就可以执行
 	if a.opts.keepAlive {
 		err := os.Setenv(shared.PluginJobEnv, shared.PluginJob)
 		if err != nil {
